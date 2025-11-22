@@ -11,6 +11,7 @@ import com.mastercard.mpqr.pushpayment.model.AdditionalData;
 import com.mastercard.mpqr.pushpayment.model.MAIData;
 import com.mastercard.mpqr.pushpayment.model.PushPaymentData;
 import com.mastercard.mpqr.pushpayment.parser.Parser;
+import com.mastercard.mpqr.pushpayment.exception.FormatException;
 
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.HashMap;
@@ -47,7 +49,7 @@ public class EmvQrService {
             MAIData mai = new MAIData(rootTag);
             mai.setValue("00", mai00);
             String timestamp = new java.text.SimpleDateFormat("yyyyMMddHHmmss")
-        .format(new java.util.Date());
+                    .format(new java.util.Date());
 
             mai.setValue("01", timestamp);
             mai.setValue("05", mai05);
@@ -68,10 +70,9 @@ public class EmvQrService {
             return push.generatePushPaymentString();
 
         } catch (FormatException e) {
-            //throw new RuntimeException("QR Build Error: " + e.getMessage());
-            System.out.println("QR Build Error: " + e.getMessage());
+            throw new RuntimeException("QR Build Error: " + e.getMessage());
+
         }
-        return null;
     }
 
     public String xgenerateEmvQrString() {
@@ -101,10 +102,10 @@ public class EmvQrService {
             return push.generatePushPaymentString();
 
         } catch (FormatException e) {
-          
-             System.out.println("QR Build Error: " + e.getMessage());
+
+            throw new RuntimeException("X QR Build Error: " + e.getMessage());
         }
-        return null;
+
     }
 
     // --------------------------------------------------------------------
@@ -114,8 +115,8 @@ public class EmvQrService {
         try {
             PushPaymentData data = Parser.parseWithValidationWarnings(qrString);
             return data.dumpData();
-        } catch (Exception e) {
-            return "Parsing Error: " + e.getMessage();
+        } catch (FormatException e) {
+            throw new RuntimeException("parseEmvQr: " + e.getMessage());
         }
     }
 
@@ -153,10 +154,10 @@ public class EmvQrService {
 
             return baos.toByteArray();
 
-        } catch (Exception e) {
-          
-             System.out.println("QR Build Error: " + e.getMessage());
+        } catch (WriterException | IOException e) {
+
+            throw new RuntimeException("generateQrImage: " + e.getMessage());
         }
-        return null;
+
     }
 }
