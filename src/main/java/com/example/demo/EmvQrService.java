@@ -6,7 +6,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
-import com.mastercard.mpqr.pushpayment.exception.*;
+
 import com.mastercard.mpqr.pushpayment.model.AdditionalData;
 import com.mastercard.mpqr.pushpayment.model.MAIData;
 import com.mastercard.mpqr.pushpayment.model.PushPaymentData;
@@ -20,7 +20,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.HashMap;
 
