@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>EMV QR Generator</title>
+    <title>EMV QR Generator By CCM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
@@ -54,9 +54,6 @@
     <label>Currency Code</label>
     <select id="currency">
         <option value="840">USD (840)</option>
-        <option value="978">EUR (978)</option>
-        <option value="826">GBP (826)</option>
-        <option value="682">SAR (682)</option>
         <option value="422">LBP (422)</option>
     </select>
 
@@ -71,13 +68,13 @@
 
     <h3>MAI Fields (Tag 29)</h3>
 
-    <label>MAI 00 Merchant ID</label>
+    <label>Merchant ID</label>
     <input id="mai00" value="100000010000331">
 
-    <label>MAI 01 TRX DATE </label>
+    <label>TRX DATE </label>
     <input id="mai01" value="240712101550">
 
-    <label>MAI 05 Terminal ID</label>
+    <label>Terminal ID</label>
     <input id="mai05" placeholder="ex: 10000011" value="10000011">
 
     <button onclick="generateQR()">Generate QR</button>
