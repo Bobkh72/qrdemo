@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EMV QR Generator</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        input { margin: 5px; padding: 5px; }
+        button { padding: 10px; }
+    </style>
+</head>
+<body>
+
+<h2>EMV QR Generator</h2>
+
+<form action="/generateQR" method="post">
+    Amount: <input type="text" name="amount"><br>
+    Currency: <input type="text" name="currency"><br>
+    Device ID: <input type="text" name="deviceId"><br>
+    <button type="submit">Generate</button>
+</form>
+
+</body>
+</html>
