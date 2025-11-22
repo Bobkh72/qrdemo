@@ -1,8 +1,9 @@
 services:
   - type: web
-    name: emv-qr-app
+    name: qrdemo
     env: docker
     plan: free
 
     dockerfilePath: ./Dockerfile
     autoDeploy: true
+
