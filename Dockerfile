@@ -1,23 +1,19 @@
-# Use official Eclipse Temurin Java 21 runtime
 FROM eclipse-temurin:21-jdk
 
-# Set working directory
 WORKDIR /app
 
-# Copy Maven wrapper and project files
-COPY mvnw mvnw.cmd pom.xml ./
-COPY .mvn .mvn
-COPY src src
-COPY lib lib
+# Copy Maven project files
+COPY pom.xml .
+COPY src ./src
+COPY lib ./lib
 
-# Make mvnw executable
-RUN chmod +x mvnw
+# Install Maven in the container
+RUN apt-get update && apt-get install -y maven
 
-# Build the application
-RUN ./mvnw clean package -DskipTests
+# Build the Spring Boot project
+RUN mvn -q -e -DskipTests package
 
-# Expose port
 EXPOSE 8080
 
-# Run the Spring Boot JAR automatically discovered inside target/
+# Run the built JAR
 CMD ["sh", "-c", "java -jar $(ls target/*.jar | head -n 1)"]
