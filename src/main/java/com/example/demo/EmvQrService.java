@@ -68,8 +68,10 @@ public class EmvQrService {
             return push.generatePushPaymentString();
 
         } catch (FormatException e) {
-            throw new RuntimeException("QR Build Error: " + e.getMessage());
+            //throw new RuntimeException("QR Build Error: " + e.getMessage());
+            System.out.println("QR Build Error: " + e.getMessage());
         }
+        return null;
     }
 
     public String xgenerateEmvQrString() {
@@ -99,8 +101,10 @@ public class EmvQrService {
             return push.generatePushPaymentString();
 
         } catch (FormatException e) {
-            throw new RuntimeException("MPQR Build Error: " + e.getMessage());
+          
+             System.out.println("QR Build Error: " + e.getMessage());
         }
+        return null;
     }
 
     // --------------------------------------------------------------------
@@ -150,7 +154,9 @@ public class EmvQrService {
             return baos.toByteArray();
 
         } catch (Exception e) {
-            throw new RuntimeException("QR Image Generation Error: " + e.getMessage());
+          
+             System.out.println("QR Build Error: " + e.getMessage());
         }
+        return null;
     }
 }
