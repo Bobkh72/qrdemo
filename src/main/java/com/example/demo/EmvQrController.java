@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import java.util.Map;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,21 +19,25 @@ public class EmvQrController {
     // --------------------------------------------------------------------
     // 1. Generate EMV MPQR string
     // --------------------------------------------------------------------
-    @GetMapping("/generate")
-    public ResponseEntity<String> generateQr(
-            @RequestParam String amount,
-            @RequestParam String currency,
-            @RequestParam String merchantName,
-            @RequestParam String city,
-            @RequestParam String country,
-            @RequestParam String mai00,
-            @RequestParam String mai01,
-            @RequestParam String mai05
-    ) {
-        return ResponseEntity.ok(
-                service.generateEmvQrString(amount, currency, merchantName, city, country, mai00, mai01, mai05)
-        );
-    }
+
+@GetMapping("/generate")
+public ResponseEntity<Map<String, String>> generateQr(
+        @RequestParam String amount,
+        @RequestParam String currency,
+        @RequestParam String merchantName,
+        @RequestParam String city,
+        @RequestParam String country,
+        @RequestParam String mai00,
+        @RequestParam String mai01,
+        @RequestParam String mai05
+) {
+
+    Map<String, String> resp = service.generateEmvQr(
+            amount, currency, merchantName, city, country, mai00, mai01, mai05
+    );
+
+    return ResponseEntity.ok(resp);
+}
 
     // --------------------------------------------------------------------
     // 2. Parse EMV QR string
