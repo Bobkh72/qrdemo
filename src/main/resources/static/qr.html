@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>EMV QR Generator</title>
+    <title>EMV QR Generator By CCM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
@@ -30,16 +30,24 @@
             margin-top: 25px;
         }
 
-        /* ✅ FINAL FIX — WRAPS LONG PAYLOAD */
+        /* payload formatting */
         #payloadBox {
             margin-top: 20px;
             background: #eee;
             padding: 12px;
             border-radius: 8px;
             font-family: Consolas, monospace;
-            white-space: pre-wrap;      /* allow wrapping */
-            word-break: break-all;      /* force long text wrap */
-            overflow-wrap: break-word;  /* extra safety */
+            white-space: pre-wrap;
+            word-break: break-all;
+            overflow-wrap: break-word;
+        }
+
+        #tcvBox {
+            margin-top: 20px;
+            background: #dfefff;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: Consolas, monospace;
         }
     </style>
 </head>
@@ -54,9 +62,6 @@
     <label>Currency Code</label>
     <select id="currency">
         <option value="840">USD (840)</option>
-        <option value="978">EUR (978)</option>
-        <option value="826">GBP (826)</option>
-        <option value="682">SAR (682)</option>
         <option value="422">LBP (422)</option>
     </select>
 
@@ -71,18 +76,19 @@
 
     <h3>MAI Fields (Tag 29)</h3>
 
-    <label>MAI 00 Merchant ID</label>
+    <label>Merchant ID</label>
     <input id="mai00" value="100000010000331">
 
-    <label>MAI 01 TRX DATE </label>
+    <label>TRX DATE</label>
     <input id="mai01" value="240712101550">
 
-    <label>MAI 05 Terminal ID</label>
-    <input id="mai05" placeholder="ex: 10000011" value="10000011">
+    <label>Terminal ID</label>
+    <input id="mai05" value="10000011">
 
     <button onclick="generateQR()">Generate QR</button>
-    <div id="qrImage"></div>
 
+    <div id="tcvBox"></div>
+    <div id="qrImage"></div>
     <div id="payloadBox"></div>
 </div>
 
@@ -99,20 +105,25 @@
         const mai01 = document.getElementById("mai01").value;
         const mai05 = document.getElementById("mai05").value;
 
-        // Build API URL
+        // Build API query
         const params =
             `amount=${amount}&currency=${currency}&merchantName=${merchantName}&city=${city}&country=${country}&mai00=${mai00}&mai01=${mai01}&mai05=${mai05}`;
 
-        // Load payload string
+        // Call API
         fetch(`/qr/generate?${params}`)
-            .then(r => r.text())
-            .then(payload => {
+            .then(r => r.json())
+            .then(data => {
 
-                // ❌ Removed <pre> → this FIXES wrapping
+                // Show TCVs
+                document.getElementById("tcvBox").innerHTML =
+                    `<b>Static TCV (62.04):</b> ${data.tcv_static}<br>` +
+                    `<b>Dynamic TCV (62.02):</b> ${data.tcv_dynamic}`;
+
+                // Show Payload
                 document.getElementById("payloadBox").innerHTML =
-                    "<b>QR Payload:</b><br>" + payload;
+                    "<b>QR Payload:</b><br>" + data.payload;
 
-                // Load QR image
+                // Show QR Image
                 document.getElementById("qrImage").innerHTML =
                     `<img src="/qr/image?${params}" width="300" height="300">`;
             });
