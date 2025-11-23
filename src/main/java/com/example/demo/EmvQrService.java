@@ -77,7 +77,7 @@ public class EmvQrService {
 
         }
     }
-
+    
     public static String generateTcv(String amount, String currency, String deviceId, boolean isDynamic) {
 
     // --- Create dynamic timestamp only if needed ---
@@ -110,8 +110,12 @@ public class EmvQrService {
             number = (number << 8) | (hash[i] & 0xFF);
         }
 
+        // --- FIX: Force positive long (remove sign bit) ---
+        long positive = number & 0x7FFFFFFFFFFFFFFFL;
+
         // --- Reduce to 6-digit TCV ---
-        int tcv6 = (int)(number % 1_000_000L);
+        int tcv6 = (int)(positive % 1_000_000L);
+
         return String.format("%06d", tcv6);
 
     } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
@@ -119,38 +123,7 @@ public class EmvQrService {
     }
 }
 
-    public String xgenerateEmvQrString() {
-        PushPaymentData push = new PushPaymentData();
 
-        try {
-            push.setPayloadFormatIndicator("01");
-            push.setValue("01", "12");
-            push.setValue("02", "EMV");
-            push.setValue("05", "0102CL0203CCM");
-
-            String rootTag = "29";
-            MAIData mai = new MAIData(rootTag);
-            mai.setValue("00", "100000010000331");
-            mai.setValue("01", "240712101550");
-            mai.setValue("05", "10000011");
-
-            push.setMAIData(rootTag, mai);
-
-            push.setMerchantName("CCM TEST MERCHANT");
-            push.setMerchantCity("BEIRUT");
-            push.setCountryCode("LB");
-            push.setMerchantCategoryCode("1434");
-            push.setTransactionCurrencyCode("840");
-            push.setValue("54", "100.80");
-
-            return push.generatePushPaymentString();
-
-        } catch (FormatException e) {
-
-            throw new RuntimeException("X QR Build Error: " + e.getMessage());
-        }
-
-    }
 
     // --------------------------------------------------------------------
     // Parse MPQR string
