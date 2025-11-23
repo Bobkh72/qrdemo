@@ -20,6 +20,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -39,7 +41,7 @@ public class EmvQrService {
             push.setPayloadFormatIndicator("01");
             push.setValue("01", "12");
             push.setValue("02", "EMV");
-            push.setValue("05", "0102CL0203CCM");
+            push.setValue("05", "0103MOF0203CCM");
 
             // -----------------------------
             // MAI (tag 29)
@@ -54,9 +56,11 @@ public class EmvQrService {
             mai.setValue("05", mai05);
             push.setMAIData(rootTag, mai);
             // 62
+            String tcv =generateTcv(amount, currency, mai05, false);
             AdditionalData additionalData = new AdditionalData();
-            additionalData.setMobileNumber("123456");
-            additionalData.setLoyaltyNumber("969696");
+            additionalData.setMobileNumber(tcv);
+            tcv =generateTcv(amount, currency, mai05, true);
+            additionalData.setLoyaltyNumber(tcv);
 
             push.setAdditionalData(additionalData);
             // Merchant info
@@ -73,6 +77,47 @@ public class EmvQrService {
 
         }
     }
+
+    public static String generateTcv(String amount, String currency, String deviceId, boolean isDynamic) {
+
+    // --- Create dynamic timestamp only if needed ---
+    String timestamp = "";
+    if (isDynamic) {
+        timestamp = new java.text.SimpleDateFormat("yyyyMMddHHmmss")
+                .format(new java.util.Date());
+    }
+
+    // --- Create random salt (always 4 digits) ---
+    java.util.Random rnd = new java.util.Random();
+    String salt = String.format("%04d", rnd.nextInt(10000));
+
+    // --- Build the input string ---
+    String input;
+    if (isDynamic) {
+        input = amount + "|" + currency + "|" + deviceId + "|" + timestamp + "|" + salt;
+    } else {
+        input = amount + "|" + currency + "|" + deviceId + "|";
+    }
+
+    try {
+        // --- Compute SHA-256 ---
+        java.security.MessageDigest sha = java.security.MessageDigest.getInstance("SHA-256");
+        byte[] hash = sha.digest(input.getBytes("UTF-8"));
+
+        // --- Take first 8 bytes to form long ---
+        long number = 0;
+        for (int i = 0; i < 8; i++) {
+            number = (number << 8) | (hash[i] & 0xFF);
+        }
+
+        // --- Reduce to 6-digit TCV ---
+        int tcv6 = (int)(number % 1_000_000L);
+        return String.format("%06d", tcv6);
+
+    } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
+        return "000000"; // fallback
+    }
+}
 
     public String xgenerateEmvQrString() {
         PushPaymentData push = new PushPaymentData();
